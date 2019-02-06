@@ -25,38 +25,40 @@ def load_data(file_name):
 
 def splitDataByClass(data,className):
     new_data = {}
-    for x in data:
-        y = x[className]
+    for row in data:
+        y = row[className]
         if (y not in new_data):
             new_data[y] = []
-        new_data[y].append([x[i] for i in range(len(x)-1)])
+
+        del row[className]
+        new_data[y].append(row.copy())
+
     return new_data
 
-def sourtoutData(data):
-    data_first = {}
-    for k, y in data.items():
-        data_second = {}
-        for row in y:
-            data_convert = {}
-            for i in range(1,len(row)):
-                print(i)
-                if (i not in data_second):
-                    data_second[i] = {}
-                if (row[i] in data_second[i]):
-                    data_second[i][row[i]] += 1
-                else:
-                    data_convert[row[i]] = 1
-                    data_second[i] = data_convert
-                print(data_second)
-        # print(data_convert)
-        # data_first[k] = data_convert
 
-    print(data_first)
+def numberedData(data):
+    dict2 = {}
+    dict1 = {}
+
+    for className in data:
+        
+        dict1[className] = {}
+        temp = data[className]
+
+        for row in temp:
+            for k in row:
+                if (k != 'id'):
+                    if (k not in dict2):
+                        dict2[k] = {}
+                    if (row[k] not in dict2[k]):
+                        dict2[k][row[k]] = 1
+                    else:
+                        dict2[k][row[k]] += 1
             
+        dict1[className] = dict2.copy()
 
+    return dict1
 
-# def average(data):
-#     return sum
 
 
 data_file = load_data('TrainsetTugas1ML.csv')
@@ -67,9 +69,9 @@ data_file = [data_file[i] for i in range(5)]
 
 # data_train = [data_file[x] for x in range(10)]
 
-# test = splitDataByClass(data_train)  
+test = splitDataByClass(data_file,"income")  
 
-# sourtoutData(test)
+numberedData(test)
 
 # print(data_train)
 
