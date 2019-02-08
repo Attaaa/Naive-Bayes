@@ -5,11 +5,11 @@ def load_data(file_name):
     fileCsv = csv.reader(open(file_name), delimiter=',')
     data = list(fileCsv)
     data_dict = {}
+
     for x in data[0]:
         data_dict[x] = ""
     
     data = [data[i] for i in range(1,len(data))]
-
     data2 = []
 
     for x in data:
@@ -20,11 +20,11 @@ def load_data(file_name):
         data2.append(data_dict.copy())
     
     return data2
-        
 
 
-def splitDataByClass(data,className):
+def splitDataByClass(data, className):
     new_data = {}
+
     for row in data:
         y = row[className]
         if (y not in new_data):
@@ -37,15 +37,14 @@ def splitDataByClass(data,className):
 
 
 def numberedData(data):
-    dict2 = {}
     dict1 = {}
 
     for className in data:
         
         dict1[className] = {}
-        temp = data[className]
+        dict2 = {}
 
-        for row in temp:
+        for row in data[className]:
             for k in row:
                 if (k != 'id'):
                     if (k not in dict2):
@@ -56,22 +55,67 @@ def numberedData(data):
                         dict2[k][row[k]] += 1
             
         dict1[className] = dict2.copy()
+        dict1[className]['count'] = len(data[className])
 
     return dict1
 
 
+def getProbabilityData(data, totalData):
 
-data_file = load_data('TrainsetTugas1ML.csv')
+    data2 = {}
+    data2 = data.copy()
 
-data_file = [data_file[i] for i in range(5)]
+    for className in data2:
 
-# print(data_file)
+        for attribute in data2[className]:
 
-# data_train = [data_file[x] for x in range(10)]
+            if (attribute != 'count'):
 
-test = splitDataByClass(data_file,"income")  
+                for value in data2[className][attribute]:
 
-numberedData(test)
+                    data2[className][attribute][value] /= data2[className]['count']
+        
+        data2[className]['prob'] = data2[className]['count'] / totalData
+        del data2[className]['count']
+    
+    return data2
 
-# print(data_train)
 
+def getPrediction(data, trainSet):
+
+    hasil = [1,1]
+
+    for row in data:
+
+        for attr, val in row.items():
+
+            if (attr != 'id' and attr != 'income'):
+                i = 0
+
+                for className in trainSet:
+                    
+                    if (val in trainSet[className][attr]):
+                        hasil[i] *= trainSet[className][attr][val]
+                        
+                    i += 1
+
+    print(hasil)
+    for x in hasil:
+        test = "%.5f" % (x)
+        print(test)
+
+
+data_file = load_data( 'TrainsetTugas1ML.csv' )
+
+totalDataTrain = 4
+totalDataTest = 1
+data_train = [data_file[i] for i in range( totalDataTrain )]
+data_test = [data_file[i] for i in range( totalDataTrain, ( totalDataTrain + totalDataTest ) )]
+
+test = splitDataByClass( data_train, "income" )  
+
+dict1 = numberedData( test )
+
+data2 = getProbabilityData( dict1, totalDataTrain )
+
+getPrediction( data_test, data2 )
