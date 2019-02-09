@@ -82,10 +82,10 @@ def getProbabilityData(data, totalData):
 
 
 def getPrediction(data, trainSet):
-
-    hasil = [1,1]
+    hasil = []
 
     for row in data:
+        temp = [1,1]
 
         for attr, val in row.items():
 
@@ -93,22 +93,23 @@ def getPrediction(data, trainSet):
                 i = 0
 
                 for className in trainSet:
-                    
                     if (val in trainSet[className][attr]):
-                        hasil[i] *= trainSet[className][attr][val]
-                        
+                        temp[i] *= trainSet[className][attr][val]
+
                     i += 1
 
+        hasil.append(temp)
+
     print(hasil)
-    for x in hasil:
-        test = "%.5f" % (x)
-        print(test)
+    # for x in hasil:
+    #     test = "%.5f" % (x)
+    #     print(test)
 
 
 data_file = load_data( 'TrainsetTugas1ML.csv' )
 
-totalDataTrain = 4
-totalDataTest = 1
+totalDataTrain = 130
+totalDataTest = 2
 data_train = [data_file[i] for i in range( totalDataTrain )]
 data_test = [data_file[i] for i in range( totalDataTrain, ( totalDataTrain + totalDataTest ) )]
 
