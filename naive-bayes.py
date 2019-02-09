@@ -1,5 +1,6 @@
 import csv
 import math
+import operator
 
 def load_data(file_name):
     fileCsv = csv.reader(open(file_name), delimiter=',')
@@ -85,38 +86,57 @@ def getPrediction(data, trainSet):
     hasil = []
 
     for row in data:
-        temp = [1,1]
+        temp = {}
 
         for attr, val in row.items():
 
             if (attr != 'id' and attr != 'income'):
-                i = 0
 
                 for className in trainSet:
+                    if (className not in temp):
+                        temp[className] = 1
+
                     if (val in trainSet[className][attr]):
-                        temp[i] *= trainSet[className][attr][val]
+                        temp[className] *= trainSet[className][attr][val]
 
-                    i += 1
+        test = max(temp.items(), key=operator.itemgetter(1))[0]
+        hasil.append(test)
 
-        hasil.append(temp)
-
-    print(hasil)
+    return hasil
     # for x in hasil:
     #     test = "%.5f" % (x)
     #     print(test)
 
 
+def trainAccuracy(data_test, data_prediction, className):
+    i = 0
+    trueData = 0
+
+    for row in data_test:
+        if (row[className] == data_prediction[i]):
+            trueData += 1
+        i += 1
+    
+    return trueData/len(data_prediction)
+
+
 data_file = load_data( 'TrainsetTugas1ML.csv' )
 
-totalDataTrain = 130
-totalDataTest = 2
+totalDataTrain = 100
+totalDataTest = len(data_file) - totalDataTrain
+
 data_train = [data_file[i] for i in range( totalDataTrain )]
-data_test = [data_file[i] for i in range( totalDataTrain, ( totalDataTrain + totalDataTest ) )]
+data_test = [data_file[i] for i in range( totalDataTrain, ( len(data_file) ) )]
 
-test = splitDataByClass( data_train, "income" )  
 
-dict1 = numberedData( test )
+data_train = splitDataByClass( data_train, "income" )  
 
-data2 = getProbabilityData( dict1, totalDataTrain )
+dataNumber = numberedData( data_train )
 
-getPrediction( data_test, data2 )
+trainSet = getProbabilityData( dataNumber, totalDataTrain )
+
+prediction_result = getPrediction( data_test, trainSet )
+
+accuracy = trainAccuracy( data_test, prediction_result, "income" )
+
+print(accuracy)
